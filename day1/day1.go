@@ -46,32 +46,39 @@ func day1(input string) (int, error) {
 		}
 	}
 
+	frontDigitValue := string(input[frontDigitPos])
+	backDigitValue := string(input[backDigitPos])
 	frontSonPos, frontSonValue := spelledOutNumber(input)
 	backSonPos, backSonValue := spelledOutNumberEnd(input)
-	backSonPos = len(input) - backSonPos
 
 	if frontDigitPos != -1 {
-		front = string(input[frontDigitPos])
+		front = frontDigitValue
 	}
 
-	if frontSonPos != -1 && (frontSonPos < frontDigitPos || frontDigitPos == -1) {
+	if frontSonPos != -1 && frontSonPos < frontDigitPos {
 		front = frontSonValue
 	}
 
 	if backDigitPos != -1 {
-		back = string(input[backDigitPos])
+		back = backDigitValue
 	}
 
-	if backSonPos > backDigitPos && backSonPos != len(input)+1 {
+	if backSonPos > backDigitPos {
 		back = backSonValue
 	}
 
+	// debug
 	if glog.V(2) {
+		for i := 0; i < len(input); i++ {
+			iStr := strconv.Itoa(i)
+			fmt.Printf("%s", string(iStr[len(iStr)-1]))
+		}
+		fmt.Println()
 		fmt.Println(input)
 		fmt.Println("len: ", len(input))
-		fmt.Println(frontDigitPos, frontSonPos)
-		fmt.Println(backDigitPos, backSonPos)
-		fmt.Println(front, back)
+		fmt.Printf("f_digit [%d] | f_son [%d]\n", frontDigitPos, frontSonPos)
+		fmt.Printf("b_digit [%d] | b_son [%d]\n", backDigitPos, backSonPos)
+		fmt.Printf("front   [%s] | back  [%s]\n", front, back)
 		fmt.Println(strconv.Atoi(front + back))
 		fmt.Println()
 	}
@@ -85,30 +92,12 @@ var spelledOut = map[string]string{
 	"five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9",
 }
 
-// returns the starting or ending index of the first spelled out number
-// index found at or -1, number value as a string
-func spelledOutNumberEnd(s string) (int, string) {
-	s = util.ReverseString(s)
-	srch := search.New(language.English)
-	earliestPos := -1
-	numberValue := "-1"
-	for k, v := range spelledOut {
-		_, pos := srch.IndexString(s, util.ReverseString(k))
-
-		if pos >= 0 && (pos < earliestPos || earliestPos == -1) {
-			earliestPos = pos
-			numberValue = v
-		}
-	}
-	return earliestPos, numberValue
-}
-
-// returns the starting or ending index of the first spelled out number
-// index found at or -1, number value as a string
+// returns the index of the first character of the first spelled out number
+// index -1 if not found, numberValue is something that will panic Atoi
 func spelledOutNumber(s string) (int, string) {
 	srch := search.New(language.English)
 	earliestPos := -1
-	numberValue := "-1"
+	numberValue := "x"
 	for k, v := range spelledOut {
 		pos, _ := srch.IndexString(s, k)
 
@@ -118,4 +107,25 @@ func spelledOutNumber(s string) (int, string) {
 		}
 	}
 	return earliestPos, numberValue
+}
+
+// returns the index of the first character of the last spelled out number
+// index -1 if not found, numberValue is something that will panic Atoi
+func spelledOutNumberEnd(s string) (int, string) {
+	s = util.ReverseString(s)
+	srch := search.New(language.English)
+	earliestPos := -1
+	numberValue := "x"
+	for k, v := range spelledOut {
+		_, pos := srch.IndexString(s, util.ReverseString(k))
+
+		if pos >= 0 && (pos < earliestPos || earliestPos == -1) {
+			earliestPos = pos
+			numberValue = v
+		}
+	}
+	if earliestPos == -1 {
+		return -1, numberValue
+	}
+	return len(s) - earliestPos, numberValue
 }
