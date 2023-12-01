@@ -16,7 +16,7 @@ func Execute() {
 	sum := 0
 
 	for _, line := range data {
-		answer, err := day1(line)
+		answer, err := Trebuchet(line)
 		if err != nil {
 			panic(err)
 		}
@@ -26,7 +26,7 @@ func Execute() {
 	fmt.Println("total sum:", sum)
 }
 
-func day1(input string) (int, error) {
+func Trebuchet(input string) (int, error) {
 	front, back := "", ""
 	frontDigitPos, backDigitPos := -1, -1
 

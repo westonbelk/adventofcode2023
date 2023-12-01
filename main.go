@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/westonbelk/adventofcode/day1"
+	"github.com/westonbelk/adventofcode/day2"
 )
 
 var day int
@@ -28,11 +29,14 @@ func main() {
 
 	dayFuncMap := map[int]interface{}{
 		1: day1.Execute,
+		2: day2.Execute,
 	}
 
 	f, ok := dayFuncMap[day].(func())
 	if !ok {
 		panic(fmt.Sprintln("day not found:", day))
 	}
+
+	fmt.Printf("Running day %d:\n", day)
 	f()
 }
