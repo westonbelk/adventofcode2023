@@ -24,7 +24,7 @@ func ReadLines(path string) []string {
 	return lines
 }
 
-func Reverse(s string) string {
+func ReverseString(s string) string {
 	n := len(s)
 	runes := make([]rune, n)
 	for _, rune := range s {
