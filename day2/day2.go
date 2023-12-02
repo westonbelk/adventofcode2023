@@ -27,14 +27,14 @@ func Execute() {
 
 type Set struct {
 	red   int
-	blue  int
 	green int
+	blue  int
 }
 
 var bag = Set{
 	red:   12,
-	blue:  13,
-	green: 14,
+	green: 13,
+	blue:  14,
 }
 
 func Conundrum(input string) (int, error) {
