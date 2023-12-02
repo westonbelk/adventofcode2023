@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/golang/glog"
 	"github.com/westonbelk/adventofcode/util"
 )
 
@@ -37,6 +38,10 @@ var bag = Set{
 	blue:  14,
 }
 
+func (s Set) power() int {
+	return s.red * s.green * s.blue
+}
+
 func Conundrum(input string) (int, error) {
 	possible := true
 	inputSplit := strings.Split(input, ": ")
@@ -44,25 +49,23 @@ func Conundrum(input string) (int, error) {
 	sets := []Set{}
 	for _, setRaw := range setsRaw {
 		sets = append(sets, toSet(setRaw))
-		set := toSet(setRaw)
-		if !isPossible(set) {
-			possible = false
+	}
+
+	wendysBiggieBag := makeBiggieBag(sets)
+
+	// debug //
+	if glog.V(2) {
+		fmt.Println("game:", game)
+		for _, s := range sets {
+			fmt.Println(s)
+			fmt.Println(possible)
 		}
+		fmt.Println(wendysBiggieBag)
+		fmt.Println()
 	}
-
-	// debug //
-	fmt.Println("game:", game)
-	for _, s := range sets {
-		fmt.Println(s)
-		fmt.Println(possible)
-	}
-	fmt.Println()
 	// debug //
 
-	if possible {
-		return strconv.Atoi(strings.TrimPrefix(game, "Game "))
-	}
-	return 0, nil
+	return wendysBiggieBag.power(), nil
 }
 
 func isPossible(set Set) bool {
@@ -96,4 +99,21 @@ func parseEvent(rawEvent string) (int, string) {
 		panic(err)
 	}
 	return num, color
+}
+
+func makeBiggieBag(sets []Set) Set {
+	biggieBag := Set{0, 0, 0}
+	for _, s := range sets {
+		biggieBag.red = max(biggieBag.red, s.red)
+		biggieBag.green = max(biggieBag.green, s.green)
+		biggieBag.blue = max(biggieBag.blue, s.blue)
+	}
+	return biggieBag
+}
+
+func max(lhs, rhs int) int {
+	if lhs > rhs {
+		return lhs
+	}
+	return rhs
 }
