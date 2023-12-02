@@ -32,11 +32,15 @@ type Set struct {
 	blue  int
 }
 
-var bag = Set{
-	red:   12,
-	green: 13,
-	blue:  14,
-}
+// var bag = Set{
+// 	red:   12,
+// 	green: 13,
+// 	blue:  14,
+// }
+
+// func isPossible(set Set) bool {
+// 	return set.red <= bag.red && set.green <= bag.green && set.blue <= bag.blue
+// }
 
 func (s Set) power() int {
 	return s.red * s.green * s.blue
@@ -66,10 +70,6 @@ func Conundrum(input string) (int, error) {
 	// debug //
 
 	return wendysBiggieBag.power(), nil
-}
-
-func isPossible(set Set) bool {
-	return set.red <= bag.red && set.green <= bag.green && set.blue <= bag.blue
 }
 
 func toSet(set string) Set {
