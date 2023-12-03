@@ -7,6 +7,7 @@ import (
 
 	"github.com/westonbelk/adventofcode/day1"
 	"github.com/westonbelk/adventofcode/day2"
+	"github.com/westonbelk/adventofcode/day3"
 )
 
 var day int
@@ -30,6 +31,7 @@ func main() {
 	dayFuncMap := map[int]interface{}{
 		1: day1.Execute,
 		2: day2.Execute,
+		3: day3.Execute,
 	}
 
 	f, ok := dayFuncMap[day].(func())
