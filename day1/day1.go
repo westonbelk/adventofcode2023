@@ -2,7 +2,9 @@ package day1
 
 import (
 	"fmt"
+	"os"
 	"strconv"
+	"strings"
 	"unicode"
 
 	"github.com/golang/glog"
@@ -12,10 +14,13 @@ import (
 )
 
 func Execute() {
-	data := util.ReadLines("day1/input.txt")
+	data, err := os.ReadFile("day1/input.txt")
+	if err != nil {
+		panic(err)
+	}
 	sum := 0
 
-	for _, line := range data {
+	for _, line := range strings.Fields(string(data)) {
 		answer, err := Trebuchet(line)
 		if err != nil {
 			panic(err)
