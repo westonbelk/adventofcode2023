@@ -4,40 +4,31 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/westonbelk/adventofcode/util"
 )
 
 var input []string
 var cardCount = 0
-var mutex sync.Mutex
-var wg sync.WaitGroup
+var cardLookup = make(map[int]int, 0)
 
 func Execute() {
-	input = util.ReadLines("day4/cali2.txt")
-	// input = util.ReadLines("day4/input.txt")
+	// input = util.ReadLines("day4/cali2.txt")
+	input = util.ReadLines("day4/input.txt")
 
 	for i := range input {
-		chain := ""
-		Process(i+1, chain)
+		preprocess(i + 1)
 	}
 
-	wg.Wait()
+	for i := range input {
+		Process(i + 1)
+	}
+
 	fmt.Println("total:", cardCount)
 
 }
 
-func Inc() {
-	mutex.Lock()
-	cardCount = cardCount + 1
-	mutex.Unlock()
-}
-
-func Process(n int, chain string) int {
-	chain += fmt.Sprintf("%d -> ", n)
-	// fmt.Println(chain)
-	Inc()
+func preprocess(n int) {
 	line := input[n-1]
 
 	total := 0
@@ -64,17 +55,13 @@ func Process(n int, chain string) int {
 			total++
 		}
 	}
-
-	for i := 0; i < total; i++ {
-		Process(n+(i+1), chain)
-	}
-	return 0
+	cardLookup[n] = total
 }
 
-// func seedWinnerLookup() map[int]int {
-// 	ret := make(map[int]int, 0)
-// 	for i := 0; i < 101; i++ {
-// 		ret[i] = 1
-// 	}
-// 	return ret
-// }
+func Process(n int) {
+	cardCount++
+
+	for i := 0; i < cardLookup[n]; i++ {
+		Process(n + (i + 1))
+	}
+}
