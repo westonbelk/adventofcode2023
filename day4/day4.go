@@ -4,31 +4,44 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/westonbelk/adventofcode/util"
 )
 
 var input []string
+var cardCount = 0
+var mutex sync.Mutex
+var wg sync.WaitGroup
 
 func Execute() {
-	// input := util.ReadLines("day4/calibration.txt")
-	input = util.ReadLines("day4/input.txt")
+	input = util.ReadLines("day4/cali2.txt")
+	// input = util.ReadLines("day4/input.txt")
 
-	sum := 0
 	for i := range input {
-		res := Process(i)
-		sum += res
+		chain := ""
+		Process(i+1, chain)
 	}
-	fmt.Println("sum:", sum)
+
+	wg.Wait()
+	fmt.Println("total:", cardCount)
 
 }
 
-func Process(n int) int {
-	line := input[n]
+func Inc() {
+	mutex.Lock()
+	cardCount = cardCount + 1
+	mutex.Unlock()
+}
+
+func Process(n int, chain string) int {
+	chain += fmt.Sprintf("%d -> ", n)
+	// fmt.Println(chain)
+	Inc()
+	line := input[n-1]
 
 	total := 0
 	winnerLookup := make(map[int]int, 0)
-	// myNumbers := make([]int, 0, 0)
 
 	cardData := strings.Split(line, ": ")[1]
 	cardDataSplit := strings.Split(cardData, " | ")
@@ -47,15 +60,15 @@ func Process(n int) int {
 		if err != nil {
 			panic(err)
 		}
-		if v, ok := winnerLookup[n]; ok {
-			if total == 0 {
-				total = 1
-			} else {
-				total = total * v
-			}
+		if _, ok := winnerLookup[n]; ok {
+			total++
 		}
 	}
-	return total
+
+	for i := 0; i < total; i++ {
+		Process(n+(i+1), chain)
+	}
+	return 0
 }
 
 // func seedWinnerLookup() map[int]int {
