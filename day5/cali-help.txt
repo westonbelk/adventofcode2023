@@ -1,0 +1,4 @@
+Seed number 79 corresponds to soil number 81.
+Seed number 14 corresponds to soil number 14.
+Seed number 55 corresponds to soil number 57.
+Seed number 13 corresponds to soil number 13.
