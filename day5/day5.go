@@ -24,20 +24,24 @@ func (m Mapping) Transform(n int) int {
 	return m.DestinationRangeStart + diff
 }
 
+var seedMap map[int]struct{}
+
 var input []string
 
 func Execute() {
-	// input = util.ReadLines("day5/calibration.txt")
-	input = util.ReadLines("day5/input.txt")
+	input = util.ReadLines("day5/calibration.txt")
+	// input = util.ReadLines("day5/input.txt")
 
+	seedMap = make(map[int]struct{})
 	seeds := readNums(strings.Fields((input[0]))[1:])
+	seeds = expandSeeds(seeds)
 	maps := mappings()
 
 	fmt.Println("seeds:", seeds)
 
-	locations := make([]int, len(seeds))
-	for seedIdx, _ := range seeds {
-		seed := seeds[seedIdx]
+	lowest := 9999999999999999
+	for seedOriginal := range seedMap {
+		seed := seedOriginal
 		for _, kind := range maps {
 			for _, mapping := range kind {
 				if mapping.Contains(seed) {
@@ -46,22 +50,27 @@ func Execute() {
 				}
 			}
 		}
-		locations[seedIdx] = seed
-		fmt.Printf("Seed number %d corresponds to soil number %d\n", seeds[seedIdx], seed)
-	}
-
-	lowest := -1
-	for _, l := range locations {
-		if lowest == -1 {
-			lowest = l
-		}
-		if l < lowest {
-			lowest = l
+		if seed < lowest {
+			lowest = seed
 		}
 	}
 
 	fmt.Println("lowest:", lowest)
 
+}
+
+func expandSeeds(original []int) []int {
+	newSeeds := make([]int, 0)
+
+	for i := 0; i < len(original); i += 2 {
+		fmt.Println(i)
+		rangeStart := original[i]
+		rangeEnd := original[i] + original[i+1]
+		for s := rangeStart; s < rangeEnd; s++ {
+			seedMap[s] = struct{}{}
+		}
+	}
+	return newSeeds
 }
 
 func mappings() [][]Mapping {
