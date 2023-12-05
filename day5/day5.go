@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 	"unicode"
 
 	"github.com/westonbelk/adventofcode/util"
@@ -27,36 +29,58 @@ func (m Mapping) Transform(n int) int {
 var input []string
 
 func Execute() {
+	start := time.Now()
+
 	// input = util.ReadLines("day5/calibration.txt")
 	input = util.ReadLines("day5/input.txt")
 
 	seeds := readNums(strings.Fields((input[0]))[1:])
 	maps := mappings()
+	numWorkers := 10
+	ch := make(chan int, numWorkers)
+	var wg sync.WaitGroup
 
 	fmt.Println("seeds:", seeds)
 
-	lowest := 9999999999999999
 	for i := 0; i < len(seeds); i += 2 {
 		rangeStart := seeds[i]
 		rangeEnd := seeds[i] + seeds[i+1]
-		for seedOriginal := rangeStart; seedOriginal < rangeEnd; seedOriginal++ {
-			seed := seedOriginal
-			for _, kind := range maps {
-				for _, mapping := range kind {
-					if mapping.Contains(seed) {
-						seed = mapping.Transform(seed)
-						break
+
+		// do work
+		wg.Add(1)
+		go func(rangeStart, rangeEnd int, ch chan int, wg *sync.WaitGroup) {
+			fmt.Println("started seed")
+			defer wg.Done()
+			lowest := 9999999999999999
+			for seedOriginal := rangeStart; seedOriginal < rangeEnd; seedOriginal++ {
+				seed := seedOriginal
+				for _, kind := range maps {
+					for _, mapping := range kind {
+						if mapping.Contains(seed) {
+							seed = mapping.Transform(seed)
+							break
+						}
 					}
 				}
+				if seed < lowest {
+					lowest = seed
+				}
 			}
-			if seed < lowest {
-				lowest = seed
-			}
-		}
-
-		fmt.Printf("finished seed %v out of %v\n", i, len(seeds))
+			fmt.Println("finished seed")
+			ch <- lowest
+		}(rangeStart, rangeEnd, ch, &wg)
 	}
-	fmt.Println("lowest:", lowest)
+
+	wg.Wait()
+	close(ch)
+	overallLowest := 9999999999999999
+	for result := range ch {
+		if result < overallLowest {
+			overallLowest = result
+		}
+	}
+	fmt.Println("overall lowest:", overallLowest)
+	fmt.Println("duration:", time.Since(start).Seconds())
 }
 
 func mappings() [][]Mapping {
