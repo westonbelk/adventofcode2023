@@ -13,10 +13,9 @@ import (
 )
 
 type Hand struct {
-	Type     Type
-	Original string
-	Cards    []Card
-	Wager    int
+	Type  Type
+	Cards []Card
+	Wager int
 }
 
 //go:generate stringer -type=Type
@@ -32,13 +31,13 @@ const (
 	FiveOfAKind
 )
 
-//go:generate stringer -type=Card
+// to switch to day 1 solution, switch which J is commented out
 type Card int
 
 const (
-	// J Card = 1
+	J Card = 1 // day 2 solution
 	T Card = iota + 10
-	J
+	// J // day 1 solution
 	Q
 	K
 	A
@@ -52,7 +51,6 @@ func Execute() {
 	for _, s := range input {
 		fields := strings.Fields(s)
 		hand := toHand(fields[0], fields[1])
-		hand.Original = s
 		hand.Type = calculateType(hand.Cards)
 		hands = append(hands, hand)
 	}
@@ -78,57 +76,42 @@ func Execute() {
 	total := 0
 	for i, h := range hands {
 		total += (i + 1) * h.Wager
-		fmt.Printf("%d * %d + ", (i + 1), h.Wager)
 	}
 	fmt.Println()
 	fmt.Println("total:", total)
 }
 
-func calculateType(cardsUnsorted []Card) Type {
-	cards := slices.Clone(cardsUnsorted)
-	slices.Sort(cards)
+func calculateType(cards []Card) Type {
+	cardCounts := make(map[Card]int, 0)
 
-	matches := make([]int, 0)
-	count := 0
-	// numJs := 0
-	last := Card(-1)
-	for i := 0; i < len(cards); i++ {
-		card := cards[i]
-
-		if i == 0 {
-			count = 1
-			last = card
-			continue
+	numJs := 0
+	for _, c := range cards {
+		if c == J && J == Card(1) {
+			numJs++
+		} else {
+			cardCounts[c] = cardCounts[c] + 1
 		}
-
-		if card == last {
-			count = count + 1
-		}
-
-		if card != last {
-			matches = append(matches, count)
-			count = 1
-		}
-
-		if i == (len(cards) - 1) {
-			matches = append(matches, count)
-		}
-
-		last = card
 	}
+	matches := make([]int, 0)
+	for _, v := range cardCounts {
+		matches = append(matches, v)
+	}
+	// glog.Exit(1)
+
+	if len(matches) == 0 {
+		return FiveOfAKind
+	}
+
+	if len(matches) == 1 {
+		return FiveOfAKind
+	}
+
 	slices.Sort(matches)
 	slices.Reverse(matches)
 	longest := matches[0]
-	secondLongest := 0
-	if len(matches) > 1 {
-		secondLongest = matches[1]
-	}
+	secondLongest := matches[1]
 
-	fmt.Println(cards)
-	fmt.Println(matches)
-	fmt.Println()
-
-	// glog.Exit(1)
+	longest = longest + numJs
 
 	if longest == 5 {
 		return FiveOfAKind
@@ -151,7 +134,7 @@ func calculateType(cardsUnsorted []Card) Type {
 	if longest == 1 && secondLongest == 1 {
 		return HighCard
 	}
-	glog.Fatalf("failed to find a type for hand: %v", cardsUnsorted)
+	glog.Fatalf("failed to find a type for hand: %v", cards)
 	panic("failed to find a type for hand")
 }
 
