@@ -25,20 +25,19 @@ func nextNum(rowStr string) int {
 	}
 
 	// placeholder 0
-	numbers[len(numbers)-1] = append(numbers[len(numbers)-1], 0)
+	numbers[len(numbers)-1] = append([]int{0}, numbers[len(numbers)-1]...)
 	for i := len(numbers) - 1; i > 0; i-- {
 		bottomRow := numbers[i]
 		topRow := numbers[i-1]
-		loc := len(bottomRow) - 1
-		sum := bottomRow[loc] + topRow[loc]
-		numbers[i-1] = append(numbers[i-1], sum)
+		loc := 0
+		sum := topRow[loc] - bottomRow[loc]
+		numbers[i-1] = append([]int{sum}, numbers[i-1]...)
 	}
 
 	for _, r := range numbers {
 		fmt.Println(r)
 	}
-	firstRow := numbers[0]
-	return firstRow[len(firstRow)-1]
+	return numbers[0][0]
 }
 
 func Execute() {
