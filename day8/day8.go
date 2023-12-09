@@ -9,7 +9,7 @@ import (
 
 func Execute() {
 	input := util.ReadLines("day8/input.txt")
-	// input := util.ReadLines("day8/calibration2.txt")
+	// input := util.ReadLines("day8/calibration3.txt")
 
 	lookup := make(map[string]*Node)
 
@@ -39,23 +39,47 @@ func Execute() {
 
 	var count int
 	found := false
-	node := lookup["AAA"] // start node
-	endNode := lookup["ZZZ"]
+	node1 := lookup["MJA"] // start node
+	node2 := lookup["RGA"]
+	node3 := lookup["JMA"]
+	node4 := lookup["XHA"]
+	node5 := lookup["DQA"]
+	node6 := lookup["AAA"]
+	// node1 := lookup["11A"] // start node
+	// node2 := lookup["11A"]
+	// node3 := lookup["11A"]
+	// node4 := lookup["22A"]
+	// node5 := lookup["22A"]
+	// node6 := lookup["22A"]
+
 	for count = 0; !found; count++ {
 		i := (count) % len(steps)
 		r := steps[i]
-		fmt.Printf("%s [%s] => ", node.Value, string(r))
 		switch r {
 		case 'R':
-			fmt.Printf("%s\n", node.Right.Value)
-			node = node.Right
+			// fmt.Printf("%s [%s] => %s\n", node1.Value, string(r), node1.Right.Value)
+			// fmt.Printf("%s [%s] => %s\n", node4.Value, string(r), node4.Right.Value)
+			node1 = node1.Right
+			node2 = node2.Right
+			node3 = node3.Right
+			node4 = node4.Right
+			node5 = node5.Right
+			node6 = node6.Right
 		case 'L':
-			fmt.Printf("%s\n", node.Left.Value)
-			node = node.Left
+			// fmt.Printf("%s [%s] => %s\n", node1.Value, string(r), node1.Left.Value)
+			// fmt.Printf("%s [%s] => %s\n", node4.Value, string(r), node4.Left.Value)
+			node1 = node1.Left
+			node2 = node2.Left
+			node3 = node3.Left
+			node4 = node4.Left
+			node5 = node5.Left
+			node6 = node6.Left
 		default:
 			panic(fmt.Sprintf("unhandled instruction: %v", r))
 		}
-		if node == endNode {
+		// fmt.Printf("%v", node1.Value[2] == 'Z')
+		// fmt.Println()
+		if node1.Value[2] == 'Z' && node2.Value[2] == 'Z' && node3.Value[2] == 'Z' && node4.Value[2] == 'Z' && node5.Value[2] == 'Z' && node6.Value[2] == 'Z' {
 			found = true
 		}
 	}
