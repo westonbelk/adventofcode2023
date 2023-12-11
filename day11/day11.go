@@ -14,6 +14,14 @@ import (
 
 // var input []string
 
+const (
+	Million int = 1000000 - 1
+	Hundred int = 100 - 1
+	Ten     int = 10 - 1
+)
+
+// @todo instead of allocating a bunch of memroy we should just determine the indexes of where to
+// expand and add it to the coords...
 func Expand(in []string) []string {
 	arr := slices.Clone(in)
 	for i := len(arr) - 1; i >= 0; i-- {
@@ -21,9 +29,12 @@ func Expand(in []string) []string {
 			return r != '.'
 		})
 		if allStars {
-			arr = slices.Insert(arr, i, arr[i])
+			for g := 0; g < Million; g++ {
+				arr = slices.Insert(arr, i, arr[i])
+			}
 		}
 	}
+	fmt.Println("errrrrr")
 
 	// rotated := make([]string, 0)
 	allStarColumns := make([]int, 0)
@@ -48,9 +59,12 @@ func Expand(in []string) []string {
 	for y := range arr {
 		for _, x := range allStarColumns { // sort reverse a range of the index where it needs to be inserted
 			row := []byte(arr[y])
-			rowModified := slices.Insert(row, x, byte('.'))
-			arr[y] = string(rowModified)
+			for g := 0; g < Million; g++ {
+				row = slices.Insert(row, x, byte('.'))
+			}
+			arr[y] = string(row)
 		}
+		fmt.Println("yeesh")
 	}
 
 	return arr
@@ -113,7 +127,7 @@ func Permuatations(n int) []image.Point {
 }
 
 func Execute() {
-	input := util.ReadLines("day11/input.txt")
+	input := util.ReadLines("day11/calibration.txt")
 
 	expanded := Expand(input)
 
