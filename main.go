@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/westonbelk/adventofcode/day1"
+	"github.com/westonbelk/adventofcode/day10"
+	"github.com/westonbelk/adventofcode/day11"
 	"github.com/westonbelk/adventofcode/day2"
 	"github.com/westonbelk/adventofcode/day3"
 	"github.com/westonbelk/adventofcode/day4"
@@ -14,7 +16,6 @@ import (
 	"github.com/westonbelk/adventofcode/day7"
 	"github.com/westonbelk/adventofcode/day8"
 	"github.com/westonbelk/adventofcode/day9"
-	"github.com/westonbelk/adventofcode/day10"
 )
 
 var day int
@@ -36,16 +37,17 @@ func main() {
 	}
 
 	dayFuncMap := map[int]interface{}{
-		1: day1.Execute,
-		2: day2.Execute,
-		3: day3.Execute,
-		4: day4.Execute,
-		5: day5.Execute,
-		6: day6.Execute,
-		7: day7.Execute,
-		8: day8.Execute,
-		9: day9.Execute,
+		1:  day1.Execute,
+		2:  day2.Execute,
+		3:  day3.Execute,
+		4:  day4.Execute,
+		5:  day5.Execute,
+		6:  day6.Execute,
+		7:  day7.Execute,
+		8:  day8.Execute,
+		9:  day9.Execute,
 		10: day10.Execute,
+		11: day11.Execute,
 	}
 
 	f, ok := dayFuncMap[day].(func())
