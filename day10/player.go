@@ -10,6 +10,8 @@ var Left = image.Point{-1, 0}
 var Down = image.Point{0, 1}
 var Right = image.Point{1, 0}
 
+var Directions = [4]image.Point{Up, Left, Down, Right}
+
 type Player struct {
 	Direction image.Point
 	Location  image.Point

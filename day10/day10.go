@@ -8,12 +8,15 @@ import (
 	"os"
 	"slices"
 	"strings"
+
+	xmaps "golang.org/x/exp/maps"
 )
 
 var input []string
 
 var Red = color.RGBA64{65535, 0, 0, 65535}
 var Blue = color.RGBA64{0, 0, 65535, 65535}
+var Green = color.RGBA64{0, 65535, 0, 65535}
 
 func fill[T any](slice []T, val T) {
 	for i := range slice {
@@ -67,6 +70,30 @@ func ReplaceNonBounds(bounds []image.Point) {
 	}
 }
 
+func Flood(img *image.RGBA64, bounds []image.Point, fillStartDir image.Point, fillColor color.RGBA64) []image.Point {
+	infected := make(map[image.Point]struct{}, 0)
+	firstBlood := findS(input).Add(fillStartDir)
+	img.SetRGBA64(firstBlood.X, firstBlood.Y, fillColor)
+	infected[firstBlood] = struct{}{}
+	replaced := true
+	for replaced {
+		replaced = false
+		for p, _ := range infected {
+			for _, direction := range Directions {
+				patient := p.Add(direction)
+				_, alreadyInfected := infected[patient]
+				if !slices.Contains(bounds, patient) && !alreadyInfected {
+					img.SetRGBA64(patient.X, patient.Y, fillColor)
+					infected[patient] = struct{}{}
+					replaced = true
+				}
+			}
+		}
+
+	}
+	return xmaps.Keys(infected)
+}
+
 func Execute() {
 	inputBytes, err := os.ReadFile("day10/input.txt")
 	// inputBytes, err := os.ReadFile("day10/calibration4.txt")
@@ -99,6 +126,7 @@ func Execute() {
 	img.SetRGBA64(s.X, s.Y, Blue)
 
 	// fill
+	Flood(img, expandedBounds, Left, Green)
 
 	// draw image
 	f, err := os.Create("draw.png")
