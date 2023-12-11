@@ -6,12 +6,66 @@ import (
 	"image/color"
 	"image/png"
 	"os"
+	"slices"
 	"strings"
 )
 
 var input []string
 
 var Red = color.RGBA64{65535, 0, 0, 65535}
+var Blue = color.RGBA64{0, 0, 65535, 65535}
+
+func fill[T any](slice []T, val T) {
+	for i := range slice {
+		slice[i] = val
+	}
+}
+
+func AddSpaceBetweenInput() {
+	for y := range input {
+		for x := len(input[y]) - 1; x > 0; x-- {
+			row := []byte(input[y])
+			rowModified := slices.Insert(row, x, byte('-'))
+			input[y] = string(rowModified)
+		}
+	}
+
+	for y := len(input) - 1; y > 0; y-- {
+		row := make([]byte, len(input[y]))
+		fill(row, '|')
+		input = slices.Insert(input, y, string(row))
+	}
+}
+
+// returns (bounds []image.Point, steps int)
+func FollowPath(startDirection image.Point) ([]image.Point, int) {
+	startLoc := findS(input)
+	player := Player{Location: startLoc, Direction: startDirection}
+	steps := 0
+	bounds := make([]image.Point, 0)
+
+	for steps == 0 || player.Location != startLoc {
+		bounds = append(bounds, image.Point{X: player.Location.X, Y: player.Location.Y})
+		player.Advance()
+		steps++
+		if player.Location == startLoc {
+			return bounds, steps
+		}
+	}
+	panic("reached end of FollowPath")
+}
+
+func ReplaceNonBounds(bounds []image.Point) {
+	for y := range input {
+		for x := range input[y] {
+			if !slices.Contains(bounds, image.Point{x, y}) {
+				l := []rune(input[y])
+				l[x] = '.'
+				input[y] = string(l)
+			}
+		}
+	}
+}
 
 func Execute() {
 	inputBytes, err := os.ReadFile("day10/input.txt")
@@ -22,21 +76,29 @@ func Execute() {
 	}
 	input = strings.Fields(string(inputBytes))
 
-	startLoc := findS(input)
-	player := Player{Location: startLoc, Direction: Down}
-	steps := 0
-	bounds := image.Rect(0, 0, len(input[0]), len(input))
-	img := image.NewRGBA64(bounds)
+	fmt.Println(strings.Join(input, "\n"))
+	fmt.Println()
+	fmt.Println("doing some stuff")
+	fmt.Println()
 
-	for steps == 0 || player.Location != startLoc {
-		img.SetRGBA64(player.Location.X, player.Location.Y, Red)
-		player.Advance()
-		steps++
-		fmt.Println()
-		if player.Location == startLoc {
-			break
-		}
+	preExpandedBounds, _ := FollowPath(Down)
+	ReplaceNonBounds(preExpandedBounds)
+	fmt.Println(strings.Join(input, "\n"))
+
+	// fmt.Println(strings.Join(input, "\n"))
+	// os.Exit(1)
+
+	AddSpaceBetweenInput()
+	img := image.NewRGBA64(image.Rect(0, 0, len(input[0]), len(input)))
+	expandedBounds, steps := FollowPath(Down)
+
+	for _, p := range expandedBounds {
+		img.SetRGBA64(p.X, p.Y, Red)
 	}
+	s := findS(input)
+	img.SetRGBA64(s.X, s.Y, Blue)
+
+	// fill
 
 	// draw image
 	f, err := os.Create("draw.png")

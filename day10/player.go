@@ -18,58 +18,58 @@ type Player struct {
 // advance one step in the direction the player is facing
 // interpret the new tile underfoot and turn as necessary
 func (p *Player) Advance() {
-	fmt.Printf("Current direction: %v\n", p.Direction)
-	prevLoc := p.Location
+	// fmt.Printf("Current direction: %v\n", p.Direction)
+	// prevLoc := p.Location
 	p.Location = p.Location.Add(p.Direction)
-	fmt.Printf("Advanced from %v to %v\n", prevLoc, p.Location)
+	// fmt.Printf("Advanced from %v to %v\n", prevLoc, p.Location)
 
 	underFoot := rune(input[p.Location.Y][p.Location.X])
 
 	switch underFoot {
 	case '|':
-		fmt.Printf("Detected %q. Continuing forward.\n", underFoot)
+		// fmt.Printf("Detected %q. Continuing forward.\n", underFoot)
 	case 'L':
-		fmt.Printf("Detected %q. Turning.\n", underFoot)
+		// fmt.Printf("Detected %q. Turning.\n", underFoot)
 		switch p.Direction {
 		case Left:
 			p.Direction = Up
 		case Down:
 			p.Direction = Right
 		default:
-			fmt.Printf("encountered error with %q\n", underFoot)
+			// fmt.Printf("encountered error with %q\n", underFoot)
 		}
 	case 'J':
-		fmt.Printf("Detected %q. Turning.\n", underFoot)
+		// fmt.Printf("Detected %q. Turning.\n", underFoot)
 		switch p.Direction {
 		case Down:
 			p.Direction = Left
 		case Right:
 			p.Direction = Up
 		default:
-			fmt.Printf("encountered error with %q", underFoot)
+			// fmt.Printf("encountered error with %q", underFoot)
 		}
 	case '7':
-		fmt.Printf("Detected %q. Turning.\n", underFoot)
+		// fmt.Printf("Detected %q. Turning.\n", underFoot)
 		switch p.Direction {
 		case Up:
 			p.Direction = Left
 		case Right:
 			p.Direction = Down
 		default:
-			fmt.Printf("encountered error with %q\n", underFoot)
+			// fmt.Printf("encountered error with %q\n", underFoot)
 		}
 	case 'F':
-		fmt.Printf("Detected %q. Turning.\n", underFoot)
+		// fmt.Printf("Detected %q. Turning.\n", underFoot)
 		switch p.Direction {
 		case Up:
 			p.Direction = Right
 		case Left:
 			p.Direction = Down
 		default:
-			fmt.Printf("encountered error with %q\n", underFoot)
+			// fmt.Printf("encountered error with %q\n", underFoot)
 		}
 	default:
-		fmt.Printf("unable to parse underfoot: %q\n", underFoot)
+		// fmt.Printf("unable to parse underfoot: %q\n", underFoot)
 	}
 
 }
