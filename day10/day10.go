@@ -71,6 +71,12 @@ func ReplaceNonBounds(bounds []image.Point) {
 }
 
 func Flood(img *image.RGBA64, bounds []image.Point, fillStartDir image.Point, fillColor color.RGBA64) []image.Point {
+	// convert bounds to map
+	fence := make(map[image.Point]struct{}, 0)
+	for _, b := range bounds {
+		fence[b] = struct{}{}
+	}
+
 	infected := make(map[image.Point]struct{}, 0)
 	firstBlood := findS(input).Add(fillStartDir)
 	img.SetRGBA64(firstBlood.X, firstBlood.Y, fillColor)
@@ -78,11 +84,12 @@ func Flood(img *image.RGBA64, bounds []image.Point, fillStartDir image.Point, fi
 	replaced := true
 	for replaced {
 		replaced = false
-		for p, _ := range infected {
+		for p := range infected {
 			for _, direction := range Directions {
 				patient := p.Add(direction)
 				_, alreadyInfected := infected[patient]
-				if !slices.Contains(bounds, patient) && !alreadyInfected {
+				_, onFence := fence[patient]
+				if !onFence && !alreadyInfected {
 					img.SetRGBA64(patient.X, patient.Y, fillColor)
 					infected[patient] = struct{}{}
 					replaced = true
