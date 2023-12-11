@@ -70,6 +70,28 @@ func ReplaceNonBounds(bounds []image.Point) {
 	}
 }
 
+func CountInside(innerPoints []image.Point, bounds []image.Point) int {
+	// convert bounds to map
+	fence := make(map[image.Point]struct{}, 0)
+	for _, b := range bounds {
+		fence[b] = struct{}{}
+	}
+
+	count := 0
+
+	for _, p := range innerPoints {
+		_, tl := fence[p]
+		_, tr := fence[p.Add(Right)]
+		_, bl := fence[p.Add(Down)]
+		_, br := fence[p.Add(Right).Add(Down)]
+		if !tl && !tr && !bl && !br {
+			count++
+		}
+	}
+
+	return count
+}
+
 func Flood(img *image.RGBA64, bounds []image.Point, fillStartDir image.Point, fillColor color.RGBA64) []image.Point {
 	// convert bounds to map
 	fence := make(map[image.Point]struct{}, 0)
@@ -103,7 +125,7 @@ func Flood(img *image.RGBA64, bounds []image.Point, fillStartDir image.Point, fi
 
 func Execute() {
 	inputBytes, err := os.ReadFile("day10/input.txt")
-	// inputBytes, err := os.ReadFile("day10/calibration4.txt")
+	// inputBytes, err := os.ReadFile("day10/calibration5.txt")
 	if err != nil {
 		fmt.Println("error reading file: exiting")
 		os.Exit(1)
@@ -133,7 +155,8 @@ func Execute() {
 	img.SetRGBA64(s.X, s.Y, Blue)
 
 	// fill
-	Flood(img, expandedBounds, Left, Green)
+	innerPoints := Flood(img, expandedBounds, Left, Green)
+	area := CountInside(innerPoints, expandedBounds)
 
 	// draw image
 	f, err := os.Create("draw.png")
@@ -146,6 +169,7 @@ func Execute() {
 	// part1 output
 	fmt.Println(strings.Join(input, "\n"))
 	fmt.Println("steps:", steps/2)
+	fmt.Println("area:", area/4)
 }
 
 func findS(input []string) image.Point {
