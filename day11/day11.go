@@ -20,54 +20,35 @@ const (
 	Ten     int = 10 - 1
 )
 
-// @todo instead of allocating a bunch of memroy we should just determine the indexes of where to
-// expand and add it to the coords...
-func Expand(in []string) []string {
-	arr := slices.Clone(in)
-	for i := len(arr) - 1; i >= 0; i-- {
-		allStars := !strings.ContainsFunc(arr[i], func(r rune) bool {
+func ExpandLocations(grid []string) ([]int, []int) {
+	colExpansions := make([]int, 0)
+	rowExpansions := make([]int, 0)
+
+	for y := len(grid) - 1; y >= 0; y-- {
+		allStars := !strings.ContainsFunc(grid[y], func(r rune) bool {
 			return r != '.'
 		})
 		if allStars {
-			for g := 0; g < Million; g++ {
-				arr = slices.Insert(arr, i, arr[i])
-			}
+			rowExpansions = append(rowExpansions, y)
 		}
 	}
-	fmt.Println("errrrrr")
 
-	// rotated := make([]string, 0)
-	allStarColumns := make([]int, 0)
-	for x := range arr[0] {
-		// row := make([]byte, len(arr))
+	for x := range grid[0] {
 		allStars := true
-		for y := range arr {
-			if arr[y][x] != '.' {
+		for y := range grid {
+			if grid[y][x] != '.' {
 				allStars = false
 			}
-			// row = append(row, arr[y][x])
 		}
 		if allStars {
-			allStarColumns = append(allStarColumns, x)
+			colExpansions = append(colExpansions, x)
 		}
-		// rotated = append(rotated, string(row))
 	}
-	// fmt.Println(rotated)
-	fmt.Println()
-	slices.Reverse(allStarColumns)
-
-	for y := range arr {
-		for _, x := range allStarColumns { // sort reverse a range of the index where it needs to be inserted
-			row := []byte(arr[y])
-			for g := 0; g < Million; g++ {
-				row = slices.Insert(row, x, byte('.'))
-			}
-			arr[y] = string(row)
-		}
-		fmt.Println("yeesh")
-	}
-
-	return arr
+	slices.Sort(colExpansions)
+	slices.Sort(rowExpansions)
+	slices.Reverse(colExpansions)
+	slices.Reverse(rowExpansions)
+	return rowExpansions, colExpansions
 }
 
 func FindPoints(grid []string, target rune) []image.Point {
@@ -127,14 +108,28 @@ func Permuatations(n int) []image.Point {
 }
 
 func Execute() {
-	input := util.ReadLines("day11/calibration.txt")
+	input := util.ReadLines("day11/input.txt")
 
-	expanded := Expand(input)
+	extraRows, extraCols := ExpandLocations(input)
+	points := FindPoints(input, '#')
 
-	points := FindPoints(expanded, '#')
+	// perform expansion of the universe
+	for i := range points {
+		p := &points[i]
+		for _, ex := range extraRows {
+			if ex < p.Y {
+				p.Y += Million
+			}
+		}
 
-	fmt.Println("expanded")
-	fmt.Println(strings.Join(expanded, "\n"))
+		for _, ex := range extraCols {
+			if ex < p.X {
+				p.X += Million
+			}
+		}
+	}
+
+	fmt.Println()
 	for i, p := range points {
 		fmt.Println(i, "=>", p)
 	}
