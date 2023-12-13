@@ -2,7 +2,6 @@ package day12
 
 import (
 	"fmt"
-	"os"
 	"slices"
 	"strconv"
 	"strings"
@@ -42,38 +41,6 @@ func Product(a []rune, k int) [][]rune {
 	return ps
 }
 
-func TestProduct() {
-	s := Product([]rune("#."), 18)
-
-	// for _, s := range o {
-	// 	fmt.Println(string(s))
-	// }
-	if 1 == 1 {
-		os.Exit(1)
-	}
-}
-
-func Hashify(strLen int) [][]rune {
-	res := make([][]rune, 0)
-	starter := make([]rune, strLen)
-	fill(starter, '.')
-	res = append(res, starter)
-
-	for n := 1; n <= len(starter); n++ {
-		for pos := 0; pos < len(starter); pos++ {
-			if pos+n > len(starter) {
-				continue
-			}
-			s := slices.Clone(starter)
-			for i := 0; i < n; i++ {
-				s[pos+i] = '#'
-			}
-			res = append(res, s)
-		}
-	}
-	return res
-}
-
 type Entry struct {
 	Pattern []rune
 	Nums    []int
@@ -94,7 +61,7 @@ func (e *Entry) Unknown() int {
 func (e *Entry) ValidIterations() int {
 	total := 0
 
-	perms := PermutationMap[e.Unknown()]
+	perms := Product([]rune("#."), e.Unknown())
 	for _, p := range perms {
 		if e.CheckIteration(p) {
 			total++
@@ -134,19 +101,17 @@ func (e *Entry) CheckIteration(replacements []rune) bool {
 	}
 
 	// check if pattern is valid
-	fmt.Println("Checking:", string(pattern), CountPattern(pattern))
+	// fmt.Println("Checking:", string(pattern), CountPattern(pattern))
 	return slices.Equal(e.Nums, CountPattern(pattern))
 }
 
 var PermutationMap = make(map[int][][]rune, 0)
 
 func Execute() {
-	// input := util.ReadLines("day12/calibration.txt")
-	input := []string{"???.### 1,1,3"}
-	TestProduct()
+	input := util.ReadLines("day12/input.txt")
+	// input := []string{"???.### 1,1,3"}
 
 	entries := make([]Entry, 0, len(input))
-	uniqueUnknown := make(map[int]struct{}, 0)
 	for _, line := range input {
 		split := strings.Fields(line)
 		pattern, numsRaw := split[0], split[1]
@@ -155,14 +120,12 @@ func Execute() {
 			Pattern: []rune(pattern),
 			Nums:    nums,
 		}
-
 		entries = append(entries, e)
-		uniqueUnknown[e.Unknown()] = struct{}{}
 	}
 
-	for k := range uniqueUnknown {
-		PermutationMap[k] = Hashify(k)
-	}
+	// check the largest
+
+	// end check the largest
 
 	sum := 0
 	for _, e := range entries {
