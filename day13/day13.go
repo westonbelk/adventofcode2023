@@ -2,6 +2,7 @@ package day13
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/westonbelk/adventofcode/util"
@@ -9,7 +10,7 @@ import (
 
 // int  => -1 if not found
 // otherwise index = value
-func rowMirror(grid []string) int {
+func rowMirror(grid []string, ignore int) int {
 	for i := 0; i < len(grid)-1; i++ {
 		if grid[i] == grid[i+1] {
 			t, b := i, i+1
@@ -22,11 +23,34 @@ func rowMirror(grid []string) int {
 				}
 			}
 			if grid[t] == grid[b] && !mismatch {
+				if ignore == (i + 1) {
+					continue
+				}
 				return i + 1
 			}
 		}
 	}
 	return -1
+}
+
+func flipBit(s string, idx int) string {
+	res := []rune(s)
+	if res[idx] == '.' {
+		res[idx] = '#'
+	} else if res[idx] == '#' {
+		res[idx] = '.'
+	} else {
+		panic("can't flip bit")
+	}
+	return string(res)
+}
+
+func flipBitGrid(originalGrid []string, x, y int) []string {
+	grid := slices.Clone(originalGrid)
+	row := grid[y]
+	row = flipBit(row, x)
+	grid[y] = row
+	return grid
 }
 
 func RotatedGrid(grid []string) []string {
@@ -41,17 +65,19 @@ func RotatedGrid(grid []string) []string {
 	return res
 }
 
-func GridValue(grid []string) int {
-	value := rowMirror(grid)
+func GridValue(grid []string, ignore int) int {
+	value := rowMirror(grid, ignore/100)
 	if value != -1 {
 		return value * 100
 	}
 
-	rotatedValue := rowMirror(RotatedGrid(grid))
+	rotatedValue := rowMirror(RotatedGrid(grid), ignore)
 	if rotatedValue != -1 {
 		return rotatedValue
 	}
 
+	return -1
+	fmt.Println(strings.Join(grid, "\n"))
 	panic("unable to find reflection for grid")
 }
 
@@ -62,8 +88,24 @@ func Execute() {
 	sum := 0
 	for g := range gridsRaw {
 		grid := strings.Fields(gridsRaw[g])
-		value := GridValue(grid)
-		fmt.Println(value)
+		originalValue := GridValue(grid, -1)
+		value := -1
+
+	Check:
+		for y := range grid {
+			for x := range grid[y] {
+				flippedBitGrid := flipBitGrid(grid, x, y)
+				v := GridValue(flippedBitGrid, originalValue)
+				if v != -1 {
+					value = v
+					break Check
+				}
+			}
+		}
+		if value == -1 {
+			fmt.Println(strings.Join(grid, "\n"))
+			panic("unable to determine new grid reflection value")
+		}
 		sum += value
 	}
 
