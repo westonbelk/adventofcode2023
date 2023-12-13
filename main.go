@@ -7,8 +7,9 @@ import (
 
 	"github.com/westonbelk/adventofcode/day1"
 	"github.com/westonbelk/adventofcode/day10"
-	"github.com/westonbelk/adventofcode/day11"
 	"github.com/westonbelk/adventofcode/day2"
+	"github.com/westonbelk/adventofcode/day11"
+	"github.com/westonbelk/adventofcode/day13"
 	"github.com/westonbelk/adventofcode/day3"
 	"github.com/westonbelk/adventofcode/day4"
 	"github.com/westonbelk/adventofcode/day5"
@@ -48,6 +49,7 @@ func main() {
 		9:  day9.Execute,
 		10: day10.Execute,
 		11: day11.Execute,
+		13: day13.Execute,
 	}
 
 	f, ok := dayFuncMap[day].(func())
