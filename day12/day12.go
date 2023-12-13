@@ -42,8 +42,9 @@ func Product(a []rune, k int) [][]rune {
 }
 
 type Entry struct {
-	Pattern []rune
-	Nums    []int
+	Original *Entry
+	Pattern  []rune
+	Nums     []int
 }
 
 func (e Entry) String() string {
@@ -61,7 +62,9 @@ func (e *Entry) Unknown() int {
 func (e *Entry) ValidIterations() int {
 	total := 0
 
+	fmt.Printf("generating %d permutations\n", e.Unknown())
 	perms := Product([]rune("#."), e.Unknown())
+	fmt.Printf("checking %d iterations for %s\n", len(perms), e)
 	for _, p := range perms {
 		if e.CheckIteration(p) {
 			total++
@@ -108,28 +111,51 @@ func (e *Entry) CheckIteration(replacements []rune) bool {
 var PermutationMap = make(map[int][][]rune, 0)
 
 func Execute() {
-	input := util.ReadLines("day12/input.txt")
-	// input := []string{"???.### 1,1,3"}
+	// input := util.ReadLines("day12/input.txt")
+	input := []string{"???.### 1,1,3"}
 
 	entries := make([]Entry, 0, len(input))
 	for _, line := range input {
 		split := strings.Fields(line)
 		pattern, numsRaw := split[0], split[1]
 		nums := util.ReadNums(strings.Split(numsRaw, ","))
-		e := Entry{
-			Pattern: []rune(pattern),
-			Nums:    nums,
+		expandedNums := make([]int, 0, len(nums)*5)
+		expandedPattern := make([]rune, 0, (len(pattern)*5)+4)
+
+		for i := 0; i < 5; i++ {
+			expandedNums = append(expandedNums, nums...)
+			expandedPattern = append(expandedPattern, []rune(pattern)...)
+			if i != 4 {
+				expandedPattern = append(expandedPattern, '?')
+			}
 		}
+		e := Entry{
+			Original: &Entry{
+				Pattern:  []rune(pattern),
+				Nums:     nums,
+				Original: nil,
+			},
+			Pattern: []rune(expandedPattern),
+			Nums:    expandedNums,
+		}
+		fmt.Println(e)
 		entries = append(entries, e)
 	}
 
 	// check the largest
-
+	largest := 0
+	for _, x := range entries {
+		if x.Unknown() > largest {
+			largest = x.Unknown()
+		}
+	}
+	fmt.Println("largest:", largest)
 	// end check the largest
 
 	sum := 0
-	for _, e := range entries {
+	for i, e := range entries {
 		sum += e.ValidIterations()
+		fmt.Printf("processed %d entries out of %d\n", i+1, len(entries))
 	}
 
 	fmt.Println("sum:", sum)
