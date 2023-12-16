@@ -8,6 +8,11 @@ import (
 	"github.com/westonbelk/adventofcode/util"
 )
 
+const (
+	billion    int = 1000000000
+	onepercent int = billion / 100
+)
+
 func Transposed(grid []string) []string {
 	res := make([]string, 0)
 	for x := range grid[0] {
@@ -20,10 +25,40 @@ func Transposed(grid []string) []string {
 	return res
 }
 
-func Rotated(grid []string) []string {
-	res := Transposed(grid)
+func Cycle(grid []string) []string {
+	return FallEastGrid(FallSouthGrid(FallWestGrid(FallNorthGrid(grid))))
+}
+
+func FallNorthGrid(grid []string) []string {
+	return Transposed(FallLeftGrid(Transposed(grid)))
+}
+
+func FallWestGrid(grid []string) []string {
+	return FallLeftGrid(grid)
+}
+
+func FallSouthGrid(grid []string) []string {
+	res := slices.Clone(grid)
+	slices.Reverse(res)
+	res = FallNorthGrid(res)
 	slices.Reverse(res)
 	return res
+}
+
+func FallEastGrid(grid []string) []string {
+	res := slices.Clone(grid)
+	for row := range res {
+		r := []rune(res[row])
+		slices.Reverse(r)
+		res[row] = string(r)
+	}
+	fell := FallWestGrid(res)
+	for row := range fell {
+		r := []rune(fell[row])
+		slices.Reverse(r)
+		fell[row] = string(r)
+	}
+	return fell
 }
 
 func FallLeft(s string) string {
@@ -73,11 +108,9 @@ func WeighGrid(grid []string) int {
 
 func Execute() {
 	input := util.ReadLines("day14/calibration.txt")
-	t := Transposed(input)
-	r := Rotated(input)
+	for i := 0; i < onepercent; i++ {
+		input = Cycle(input)
+	}
+
 	fmt.Println(strings.Join(input, "\n"))
-	fmt.Println()
-	fmt.Println(strings.Join(t, "\n"))
-	fmt.Println()
-	fmt.Println(strings.Join(r, "\n"))
 }
