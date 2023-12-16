@@ -1,6 +1,7 @@
 package day14
 
 import (
+	"crypto/md5"
 	"fmt"
 	"slices"
 	"strings"
@@ -20,18 +21,18 @@ const (
 
 func NewGridCacheEntry(g []string) Grid {
 	grid := Grid{
-		Hash: strings.ReplaceAll(ZipGrid(g), ".", ""),
+		Hash: md5.Sum([]byte(ZipGrid(g))),
 		Grid: g,
 	}
 	return grid
 }
 
 type Grid struct {
-	Hash string
+	Hash [16]byte
 	Grid []string
 }
 
-var cache = make(map[string]Grid, 0)
+var cache = make(map[[16]byte]Grid, 0)
 var cacheHits int = 0
 
 func ZipGrid(grid []string) string {
@@ -140,7 +141,7 @@ func WeighGrid(grid []string) int {
 
 func Execute() {
 	input := util.ReadLines("day14/input.txt")
-	iterations := onepercent
+	iterations := billion
 	fmt.Printf("running %s iterations\n", iterations)
 	start := time.Now()
 	grid := NewGridCacheEntry(input)
@@ -157,5 +158,5 @@ func Execute() {
 
 	fmt.Println("cache entries:", len(cache))
 	fmt.Println("cache hits:", cacheHits)
-	fmt.Println("load", WeighGrid(input))
+	fmt.Println("load", WeighGrid(grid.Grid))
 }
