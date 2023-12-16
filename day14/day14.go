@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/westonbelk/adventofcode/util"
 )
@@ -14,6 +15,7 @@ const (
 )
 
 var cache = make(map[string]string, 0)
+var cacheHits int = 0
 
 func ZipGrid(grid []string) string {
 	return strings.Join(grid, "\n")
@@ -39,10 +41,12 @@ func Cycle(grid []string) []string {
 	gridZipped := ZipGrid(grid)
 	cached, ok := cache[gridZipped]
 	if ok {
+		cacheHits++
 		return UnzipGrid(cached)
 	}
 
-	res := FallEastGrid(FallSouthGrid(FallWestGrid(FallNorthGrid(grid))))
+	res := slices.Clone(grid)
+	res = FallEastGrid(FallSouthGrid(FallWestGrid(FallNorthGrid(res))))
 	cache[gridZipped] = ZipGrid(res)
 	return res
 }
@@ -55,28 +59,26 @@ func FallWestGrid(grid []string) []string {
 	return FallLeftGrid(grid)
 }
 
-func FallSouthGrid(grid []string) []string {
-	res := slices.Clone(grid)
+func FallSouthGrid(res []string) []string {
 	slices.Reverse(res)
 	res = FallNorthGrid(res)
 	slices.Reverse(res)
 	return res
 }
 
-func FallEastGrid(grid []string) []string {
-	res := slices.Clone(grid)
+func FallEastGrid(res []string) []string {
 	for row := range res {
 		r := []rune(res[row])
 		slices.Reverse(r)
 		res[row] = string(r)
 	}
-	fell := FallWestGrid(res)
-	for row := range fell {
-		r := []rune(fell[row])
+	res = FallWestGrid(res)
+	for row := range res {
+		r := []rune(res[row])
 		slices.Reverse(r)
-		fell[row] = string(r)
+		res[row] = string(r)
 	}
-	return fell
+	return res
 }
 
 func FallLeft(s string) string {
@@ -102,11 +104,10 @@ func FallLeft(s string) string {
 	return string(r)
 }
 
-func FallLeftGrid(grid []string) []string {
-	res := make([]string, 0)
-	for _, r := range grid {
-		r = FallLeft(r)
-		res = append(res, r)
+func FallLeftGrid(res []string) []string {
+	for i, row := range res {
+		row = FallLeft(row)
+		res[i] = row
 	}
 	return res
 }
@@ -125,13 +126,21 @@ func WeighGrid(grid []string) int {
 }
 
 func Execute() {
-	input := util.ReadLines("day14/calibration.txt")
-	for i := 1; i <= billion; i++ {
+	input := util.ReadLines("day14/input.txt")
+	iterations := onepercent
+	start := time.Now()
+	for i := 1; i <= iterations; i++ {
 		input = Cycle(input)
 		// fmt.Println("After", i, "cycles:")
 		// fmt.Println(strings.Join(input, "\n"))
 		// fmt.Println()
 	}
+	if iterations == onepercent {
+		dur := time.Since(start)
+		fmt.Printf("estimated duration for billion: %s\n", dur*100)
+	}
 
+	fmt.Println("cache entries:", len(cache))
+	fmt.Println("cache hits:", cacheHits)
 	fmt.Println("load", WeighGrid(input))
 }
