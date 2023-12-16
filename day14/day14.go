@@ -2,12 +2,13 @@ package day14
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/westonbelk/adventofcode/util"
 )
 
-func Rotated(grid []string) []string {
+func Transposed(grid []string) []string {
 	res := make([]string, 0)
 	for x := range grid[0] {
 		row := make([]byte, 0)
@@ -16,6 +17,12 @@ func Rotated(grid []string) []string {
 		}
 		res = append(res, string(row))
 	}
+	return res
+}
+
+func Rotated(grid []string) []string {
+	res := Transposed(grid)
+	slices.Reverse(res)
 	return res
 }
 
@@ -65,10 +72,12 @@ func WeighGrid(grid []string) int {
 }
 
 func Execute() {
-	input := util.ReadLines("day14/input.txt")
-	grid := Rotated(input)
-	grid = FallLeftGrid(grid)
-	grid = Rotated(grid)
-	fmt.Println(strings.Join(grid, "\n"))
-	fmt.Println(WeighGrid(grid))
+	input := util.ReadLines("day14/calibration.txt")
+	t := Transposed(input)
+	r := Rotated(input)
+	fmt.Println(strings.Join(input, "\n"))
+	fmt.Println()
+	fmt.Println(strings.Join(t, "\n"))
+	fmt.Println()
+	fmt.Println(strings.Join(r, "\n"))
 }
