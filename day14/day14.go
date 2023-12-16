@@ -9,20 +9,20 @@ import (
 	"github.com/westonbelk/adventofcode/util"
 )
 
+//go:generate stringer -type=iterations
+type iterations int
+
 const (
-	billion    int = 1000000000
-	onepercent int = billion / 100
+	three      iterations = 3
+	billion    iterations = 1000000000
+	onepercent iterations = billion / 100
 )
 
-var cache = make(map[string]string, 0)
+var cache = make(map[string][]string, 0)
 var cacheHits int = 0
 
 func ZipGrid(grid []string) string {
-	return strings.Join(grid, "\n")
-}
-
-func UnzipGrid(zipped string) []string {
-	return strings.Split(zipped, "\n")
+	return strings.Join(grid, "")
 }
 
 func Transposed(grid []string) []string {
@@ -42,12 +42,12 @@ func Cycle(grid []string) []string {
 	cached, ok := cache[gridZipped]
 	if ok {
 		cacheHits++
-		return UnzipGrid(cached)
+		return cached
 	}
 
 	res := slices.Clone(grid)
 	res = FallEastGrid(FallSouthGrid(FallWestGrid(FallNorthGrid(res))))
-	cache[gridZipped] = ZipGrid(res)
+	cache[gridZipped] = res
 	return res
 }
 
@@ -126,10 +126,11 @@ func WeighGrid(grid []string) int {
 }
 
 func Execute() {
-	input := util.ReadLines("day14/input.txt")
+	input := util.ReadLines("day14/calibration.txt")
 	iterations := onepercent
+	fmt.Printf("running %s iterations\n", iterations)
 	start := time.Now()
-	for i := 1; i <= iterations; i++ {
+	for i := 1; i <= int(iterations); i++ {
 		input = Cycle(input)
 		// fmt.Println("After", i, "cycles:")
 		// fmt.Println(strings.Join(input, "\n"))
@@ -137,7 +138,7 @@ func Execute() {
 	}
 	if iterations == onepercent {
 		dur := time.Since(start)
-		fmt.Printf("estimated duration for billion: %s\n", dur*100)
+		fmt.Printf("estimated duration for %s: %s\n", billion, dur*100)
 	}
 
 	fmt.Println("cache entries:", len(cache))
