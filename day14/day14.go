@@ -13,6 +13,16 @@ const (
 	onepercent int = billion / 100
 )
 
+var cache = make(map[string]string, 0)
+
+func ZipGrid(grid []string) string {
+	return strings.Join(grid, "\n")
+}
+
+func UnzipGrid(zipped string) []string {
+	return strings.Split(zipped, "\n")
+}
+
 func Transposed(grid []string) []string {
 	res := make([]string, 0)
 	for x := range grid[0] {
@@ -26,7 +36,15 @@ func Transposed(grid []string) []string {
 }
 
 func Cycle(grid []string) []string {
-	return FallEastGrid(FallSouthGrid(FallWestGrid(FallNorthGrid(grid))))
+	gridZipped := ZipGrid(grid)
+	cached, ok := cache[gridZipped]
+	if ok {
+		return UnzipGrid(cached)
+	}
+
+	res := FallEastGrid(FallSouthGrid(FallWestGrid(FallNorthGrid(grid))))
+	cache[gridZipped] = ZipGrid(res)
+	return res
 }
 
 func FallNorthGrid(grid []string) []string {
@@ -108,9 +126,12 @@ func WeighGrid(grid []string) int {
 
 func Execute() {
 	input := util.ReadLines("day14/calibration.txt")
-	for i := 0; i < onepercent; i++ {
+	for i := 1; i <= billion; i++ {
 		input = Cycle(input)
+		// fmt.Println("After", i, "cycles:")
+		// fmt.Println(strings.Join(input, "\n"))
+		// fmt.Println()
 	}
 
-	fmt.Println(strings.Join(input, "\n"))
+	fmt.Println("load", WeighGrid(input))
 }
